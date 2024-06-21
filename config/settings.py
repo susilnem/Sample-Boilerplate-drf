@@ -10,7 +10,20 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 import os
+import environ
 from pathlib import Path
+
+env = environ.Env(
+    DEBUG=(bool, False),
+    DJANGO_DB_NAME=str,
+    DJANGO_DB_USER=str,
+    DJANGO_DB_PASS=str,
+    DJANGO_DB_HOST=str,
+)
+environ.Env.read_env()
+
+SECRET_KEY = env("DJANGO_SECRET_KEY")
+DEBUG = env("DJANGO_DEBUG")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 PROJECT_DIR = os.path.dirname(os.path.dirname(
@@ -42,6 +55,9 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    'debug_toolbar',
+    'drf_yasg',
+    'django_extensions',
 ]
 
 LOCAL_APPS = [
@@ -58,6 +74,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'debug_toolbar.middleware.DebugToolbarMiddleware', # debug toolbar middleware
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -115,3 +132,15 @@ USE_TZ = True
 STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Database for postgres
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env('DJANGO_DB_NAME'),
+        'USER': env('DJANGO_DB_USER'),
+        'PASSWORD': env('DJANGO_DB_PASS'),
+        'HOST': env('DJANGO_DB_HOST'),
+        'PORT': '5432',
+    }
+}
